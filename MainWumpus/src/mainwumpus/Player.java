@@ -26,7 +26,7 @@ public class Player {
     }
 
     public void move(int newX, int newY) {
-
+           // vai precisar do board
     }
 
     public void pickup(Item item) {
@@ -42,7 +42,7 @@ public class Player {
 
     public void useArrow() {
             if (arrowAvailable) {
-                // Implement arrow usage logic here
+                // vou precisar do board
                 arrowAvailable = false;
             }
     }
@@ -74,7 +74,11 @@ public class Player {
 
     }
 
-    public void encounterMonster(Wumpus1 monster) {
+    public void encounterWumpus1(Wumpus1 monster) {
+
+    }
+    
+    public void encounterWumpus2(Wumpus2 monster) {
 
     }
 

@@ -1,5 +1,0 @@
-package mainwumpus;
-
-class Obstacle {
-    
-}

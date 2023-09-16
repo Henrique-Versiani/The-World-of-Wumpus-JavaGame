@@ -70,19 +70,11 @@ public class Player {
         }
     }
 
-    public void craftWood() {
-        
-    }
-
     public void returnToStart() {
 
     }
 
     public void encounterMonster(Wumpus1 monster) {
-
-    }
-
-    public void encounterObstacle(Obstacle obstacle) {
 
     }
 
@@ -108,9 +100,5 @@ public class Player {
         } else {
             System.out.println("Your inventary is full. Drop off something to collect the gold.");
         }
-    }
-
-    public void encounterWall() {
-
     }
 }

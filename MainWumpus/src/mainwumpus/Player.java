@@ -5,7 +5,7 @@ import java.util.List;
 import java.util.Scanner;
 
 public class Player {
-    private int energyVital;
+    private int energy = 100;
     private int maxCarryCapacity;
     private int currentCarryCapacity;
     private int positionX;
@@ -14,8 +14,8 @@ public class Player {
     private boolean arrowAvailable;
     private List<Item> inventory;
 
-    public Player() {
-            energyVital = 100;
+    public Player(int initialEnergy) {
+            this.energy = initialEnergy;
             maxCarryCapacity = 3;
             currentCarryCapacity = 0;
             positionX = 0;
@@ -105,4 +105,21 @@ public class Player {
             System.out.println("Your inventary is full. Drop off something to collect the gold.");
         }
     }
+    
+    public int getEnergy() {
+        return energy;
+    }
+    
+    public void decreaseEnergy(int amount) {
+        energy -= amount;
+        if (energy <= 0) {
+            gameOver();
+        }
+    }
+    
+    public void gameOver() {
+        System.out.println("Game over!\n The player has been killed.");
+        System.exit(0);
+    }
+    
 }

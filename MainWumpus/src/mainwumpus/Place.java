@@ -7,6 +7,7 @@ public class Place {
     private final int totalWeight;
     private final int row;
     private final int column;
+    private Object object;
     
     private String previous;
     
@@ -22,6 +23,7 @@ public class Place {
         wumpusWeight = 0;
         visitedWeight = 0;
         totalWeight = 0;
+        this.object = null;
     }
     
     public void possiblePit(int pitWeight){
@@ -91,5 +93,13 @@ public class Place {
     
     public String getId(){
         return row + ":" + column;
+    }
+    
+     public Object getObject() {
+        return object;
+    }
+
+    public void setObject(Object object) {
+        this.object = object;
     }
 }

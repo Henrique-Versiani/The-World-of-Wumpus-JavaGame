@@ -18,17 +18,11 @@ public class MainWumpus extends JFrame {
         setLocationRelativeTo(null);
         playerRow = 0;
         playerCol = 0;
-
+        
         gameBoard = new GameBoard(15, 15, gameMap);
         add(gameBoard, BorderLayout.CENTER);
-
-        // Inicialize o mapa com objetos, por exemplo:
-        gameMap[2][3] = new Place(2, 3);
-        gameMap[2][3].setObject(new Gold());
-
-        gameMap[4][6] = new Place(4, 6);
-        gameMap[4][6].setObject(new Pit(5));
-
+        gameBoard.initializeGameElements();
+        
         JPanel buttonPanel = new JPanel();
         add(buttonPanel, BorderLayout.SOUTH);
 

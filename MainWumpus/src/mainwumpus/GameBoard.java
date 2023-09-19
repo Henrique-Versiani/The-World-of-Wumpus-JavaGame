@@ -90,7 +90,7 @@ public class GameBoard extends JPanel {
                         g.setColor(Color.YELLOW);
                         g.fillRect(x, y, cellSize, cellSize);
                     } else if (object instanceof Wood) {
-                        g.setColor(Color.ORANGE);
+                        g.setColor(new Color(139, 69, 19));
                         g.fillRect(x, y, cellSize, cellSize);
                     } else if (object instanceof Wumpus1) {
                         g.setColor(Color.GREEN);
@@ -99,7 +99,7 @@ public class GameBoard extends JPanel {
                         g.setColor(Color.BLUE);
                         g.fillRect(x, y, cellSize, cellSize);
                     } else if (object instanceof Pit) {
-                        g.setColor(new Color(139, 69, 19)); // Marrom
+                        g.setColor(Color.BLACK); // Marrom
                         g.fillRect(x, y, cellSize, cellSize);
                     }
                 }

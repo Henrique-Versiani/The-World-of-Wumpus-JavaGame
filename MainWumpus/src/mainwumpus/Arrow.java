@@ -11,13 +11,17 @@ class Arrow extends Item{
         this.totalArrow--;
     }
 
-    public int getTotal() {
+    public int getArrow() {
         return totalArrow;
     }
     
+    public void addArrow() {
+        totalArrow++;
+    }
+    
     public boolean createArrow(Wood wood) {
-        if (wood.getQuantity() > 0) {
-            wood.collectWood(-1);
+        if (wood.getWood() > 0) {
+            wood.collectWood();
             totalArrow++;
             return true; 
         }

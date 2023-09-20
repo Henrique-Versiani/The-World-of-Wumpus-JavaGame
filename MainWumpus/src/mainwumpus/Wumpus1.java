@@ -5,37 +5,62 @@ import java.util.Random;
 class Wumpus1 {
     private int row;
     private int column;
+    private GameBoard gameBoard;
 
-    public Wumpus1(int row, int column) {
-        this.row = row;
-        this.column = column;
-    }
 
-    public void move() {
+    public Wumpus1(GameBoard gameBoard) {
+        this.gameBoard = gameBoard;
         Random random = new Random();
-        int direction = random.nextInt(4);  //4 opcoes de movimento
-
-        switch (direction) {
-            case 0: // pra cima
-                row--;
-                break;
-            case 1: // pra baixo
-                row++;
-                break;
-            case 2: // pra esquerda
-                column--;
-                break;
-            case 3: // pra direita
-                column++;
-                break;
-        }
+        this.row = random.nextInt(gameBoard.getRows());
+        this.column = random.nextInt(gameBoard.getCols());
     }
 
-    public boolean isAtAgentPosition(int agentRow, int agentColumn) {
-        return row == agentRow && column == agentColumn;
+    public void move(int mapRows, int mapColumns, Place[][] gameMap) {
+        Random random = new Random();
+        int direction;
+
+        do {
+            direction = random.nextInt(4);  // 4 opções de movimento
+            int nextRow = row;
+            int nextCol = column;
+
+            switch (direction) {
+                case 0: // para cima
+                    nextRow--;
+                    break;
+                case 1: // para baixo
+                    nextRow++;
+                    break;
+                case 2: // para a esquerda
+                    nextCol--;
+                    break;
+                case 3: // para a direita
+                    nextCol++;
+                    break;
+            }
+
+            // Verificar se pode fazer o movimento
+            if (nextRow >= 0 && nextRow < mapRows && nextCol >= 0 && nextCol < mapColumns) {    //se ta dentro do mapa
+                Place nextPlace = gameMap[nextRow][nextCol];
+                if (nextPlace == null || !(nextPlace.getObject() instanceof Pit)) { //se nao eh buraco
+                    
+                    row = nextRow;
+                    column = nextCol;
+                    break;
+                }
+            }
+        } while (true);
+
+        gameBoard.setWumpus1Position(row, column);
+        gameBoard.repaint();
     }
 
-    public void killPlayer(Player player) {
-        player.decreaseEnergy(player.getEnergy());
+    public int getRow(){
+        return row;
     }
+    
+    public int getColumn(){
+        return column;
+    }
+
 }

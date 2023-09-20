@@ -5,59 +5,96 @@ import java.util.Random;
 public class Wumpus2 {
     private int row;
     private int column;
+    private GameBoard gameBoard;
 
-    public Wumpus2(int row, int column) {
-        this.row = row;
-        this.column = column;
-    }
-
-    public void move() {
+    public Wumpus2(GameBoard gameBoard) {
+        this.gameBoard = gameBoard;
         Random random = new Random();
-        int direction = random.nextInt(7);  //8 direcoes possiveis
-
-        switch (direction) {
-            case 0: // Movimento pra cima e pra esquerda
-                row -= 2;
-                column--;
-                break;
-            case 1: // Movimento pra cima e pra direita
-                row -= 2;
-                column++;
-                break;
-            case 2: // Movimento pra direita e pra cima
-                column += 2;
-                row--;
-                break;
-            case 3: // Movimento pra direita e para baixo
-                column += 2;
-                row++;
-                break;
-            case 4: // Movimento pra baixo e pra esquerda
-                row += 2;
-                column--;
-                break;
-            case 5: // Movimento pra baixo e pra direita
-                row += 2;
-                column++;
-                break;
-            case 6: // Movimento pra esquerda e pra cima
-                column -= 2;
-                row--;
-                break;
-            case 7: // Movimento pra esquerda e pra baixo
-                column -= 2;
-                row++;
-                break;
-        }
+        this.row = random.nextInt(gameBoard.getRows());
+        this.column = random.nextInt(gameBoard.getCols());
     }
 
-    public boolean isAtAgentPosition(int agentRow, int agentColumn) {
-        return row == agentRow && column == agentColumn;
-    }
 
-    public void consumePlayerEnergy(Player player) {
-        int playerEnergy = player.getEnergy();
-        int energyToConsume = playerEnergy / 2;
-        player.decreaseEnergy(energyToConsume);
+    public void move(int mapRows, int mapColumns, Place[][] gameMap) {
+        Random random = new Random();
+        int direction;
+
+        do {
+            direction = random.nextInt(11);  // 12 direções possíveis
+            int nextRow = row;
+            int nextCol = column;
+
+            switch (direction) {
+                case 0: // Movimento pra cima e pra esquerda
+                    nextRow--;
+                    nextCol--;
+                    break;
+                case 1: // Movimento pra cima e pra direita
+                    nextRow--;
+                    nextCol++;
+                    break;
+                case 2: // Movimento pra direita e pra cima
+                    nextCol++;
+                    nextRow--;
+                    break;
+                case 3: // Movimento pra direita e para baixo
+                    nextCol++;
+                    nextRow++;
+                    break;
+                case 4: // Movimento pra baixo e pra esquerda
+                    nextRow++;
+                    nextCol--;
+                    break;
+                case 5: // Movimento pra baixo e pra direita
+                    nextRow++;
+                    nextCol++;
+                    break;
+                case 6: // Movimento pra esquerda e pra cima
+                    nextCol--;
+                    nextRow--;
+                    break;
+                case 7: // Movimento pra esquerda e pra baixo
+                    nextCol--;
+                    nextRow++;
+                    break;
+                case 8:
+                    if (nextCol >= 2)
+                        nextCol -= 2;
+                    break;
+                case 9:
+                    if (nextCol <= mapColumns - 3)
+                        nextCol += 2;
+                    break;
+                case 10:
+                    if (nextRow >= 2)
+                        nextRow -= 2;
+                    break;
+                case 11:
+                    if (nextRow <= mapRows - 3)
+                        nextRow += 2;
+                    break;
+            }
+
+            // Verificar se pode fazer o movimento
+            if (nextRow >= 0 && nextRow < mapRows && nextCol >= 0 && nextCol < mapColumns) {
+                Place nextPlace = gameMap[nextRow][nextCol];
+                if (nextPlace == null || !(nextPlace.getObject() instanceof Pit)) {
+                    row = nextRow;
+                    column = nextCol;
+                    break;
+                }
+            }
+        } while (true);
+
+        gameBoard.setWumpus2Position(row, column);
+        gameBoard.repaint();
+    }
+    
+    public int getRow(){
+        return row;
+    }
+    
+    public int getColumn(){
+        return column;
     }
 }

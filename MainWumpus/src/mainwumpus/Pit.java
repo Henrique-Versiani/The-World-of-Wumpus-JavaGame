@@ -8,13 +8,25 @@ import java.util.List;
 
 public class Pit {
     private int number;
+    private int row;
+    private int col;
     private List<Pit> linkedPits;
     private List<Objects> gameObjects;
 
-    public Pit(int number){
+    public Pit(int number, int row, int col) {
         this.number = number;
+        this.row = row;
+        this.col = col;
         this.linkedPits = new ArrayList<>();
-        this.gameObjects=new ArrayList<>();
+        this.gameObjects = new ArrayList<>();
+    }
+
+    public int getRow() {
+        return row;
+    }
+
+    public int getCol() {
+        return col;
     }
 
     @Override
@@ -24,7 +36,6 @@ public class Pit {
         Pit pit = (Pit) o;
         return number == pit.number;
     }
-
 
     public void addLink(Pit linkedCave) {
         this.linkedPits.add(linkedCave);

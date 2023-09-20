@@ -15,7 +15,7 @@ class Gold extends Item{
         this.totalGold++;
     }
 
-    public int getTotal() {
+    public int getGold() {
         return totalGold;
     }
 }

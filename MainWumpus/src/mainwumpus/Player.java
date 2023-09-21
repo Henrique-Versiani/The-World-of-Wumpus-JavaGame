@@ -37,19 +37,7 @@ public class Player {
         }
     }
    
-    public void useLantern() {
-            if (lanternAvailable) {
-                // Tem que ver ainda como vão funcionar os métodos da lampada
-                lanternAvailable = false;
-            }
-    }
 
-    public void useArrow() {
-            if (arrowAvailable) {
-                // vou precisar do board
-                arrowAvailable = false;
-            }
-    }
 
     public void createArrow() {
             Arrow arrow = new Arrow();

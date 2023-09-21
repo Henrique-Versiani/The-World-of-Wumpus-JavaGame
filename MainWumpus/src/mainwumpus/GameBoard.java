@@ -28,9 +28,13 @@ public class GameBoard extends JPanel {
     private int woodRow; 
     private int woodCol;
     private final Set<Wood> woods;
-    private final List<Pit> createdPits = new ArrayList<>();
+    private final List<Point> pitSmell = new ArrayList<>();
     private final List<Point> wumpus1Smell = new ArrayList<>();
     private final List<Point> wumpus2Smell = new ArrayList<>();
+    public boolean isAliveW1;
+    public boolean isAliveW2;
+    
+
 
     
     
@@ -49,6 +53,8 @@ public class GameBoard extends JPanel {
             }
         }
         hiddenMap[14][0] = false; 
+        this.isAliveW1 = true;
+        this.isAliveW2 = true;
         
     }
 
@@ -71,21 +77,35 @@ public class GameBoard extends JPanel {
         }
     }
     
-    public void LanternY(int row, int col) {
+    public void LanternDown(int row, int col) {
         for (int i = row; i < 15; i++) {
             hiddenMap[i][col] = false;
         }
     }
 
-    public void LanternX(int row, int col) {
+    public void LanternRight(int row, int col) {
         for (int i = col; i < 15; i++) {
             hiddenMap[row][i] = false;
         }
     }
+    
+    public void LanternUp(int row, int col) {
+        for (int i = row; i >= 0; i--) {
+            hiddenMap[i][col] = false;
+        }
+    }
+
+    public void LanternLeft(int row, int col) {
+        for (int i = col; i >= 0; i--) {
+            hiddenMap[row][i] = false;
+        }
+    }
+
     public void setPlayerPosition(int row, int col) {
         this.playerRow = row;
         this.playerCol = col;
         hiddenMap[row][col] = false; // quando o jogador passar entao fica false
+        
     }
     
     public void setWumpus1Position(int row, int col) {
@@ -136,8 +156,8 @@ public class GameBoard extends JPanel {
             } while (gameMap[woodRow][woodCol] != null);
 
             gameMap[woodRow][woodCol] = new Place(woodRow, woodCol);
-            Wood wood = new Wood(2,woodRow,woodCol); // Crie a madeira
-            gameMap[woodRow][woodCol].setObject(wood); // Defina a madeira na célula
+            Wood wood = new Wood(2,woodRow,woodCol); 
+            gameMap[woodRow][woodCol].setObject(wood); 
             woods.add(wood);
         }
 
@@ -172,7 +192,7 @@ public class GameBoard extends JPanel {
             Pit pit = new Pit(5, randomRow, randomCol);
             gameMap[randomRow][randomCol].setObject(pit);
             
-            createdPits.add(pit);
+            
             pits.add(pit);
         }
 
@@ -182,9 +202,11 @@ public class GameBoard extends JPanel {
     @Override
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
+        
+        
 
-        for (int row = 0; row < rows; row++) {
-            for (int col = 0; col < cols; col++) {
+        for (int row = 0; row < 15; row++) {
+            for (int col = 0; col < 15; col++) {
                 int x = col * cellSize;
                 int y = row * cellSize;
 
@@ -214,11 +236,29 @@ public class GameBoard extends JPanel {
                             g.fillRect(x, y, cellSize, cellSize);
                         }
                 }
+                    if (hiddenMap[row][col]) {
+                        for (Point point : pitSmell) {
+                            int px = point.x * cellSize;
+                            int py = point.y * cellSize;
+                            g.setColor(new Color(173, 216, 230)); // Azul claro
+                            g.fillRect(px, py, cellSize, cellSize);
+                            g.setColor(Color.BLACK); // Borda
+                            g.drawRect(px, py, cellSize, cellSize);
+                        }
+                    } else {
+                        for (Point point : pitSmell) {
+                            int px = point.x * cellSize;
+                            int py = point.y * cellSize;
+                            g.setColor(Color.BLUE); // Azul
+                            g.fillRect(px, py, cellSize, cellSize/2);
+                        }
+                    }
             }
         }
         
         
         // Wumpus1
+        if(isAliveW1 == true){
         int wumpus1X = wumpus1Col * cellSize;
         int wumpus1Y = wumpus1Row * cellSize;
 
@@ -250,8 +290,10 @@ public class GameBoard extends JPanel {
                     g.fillRect(wx, wy, cellSize, cellSize);
                 }
             }   
-
+        }
+        
         // Wumpus2
+      if(isAliveW2 == true){
         int wumpus2X = wumpus2Col * cellSize;
         int wumpus2Y = wumpus2Row * cellSize;
 
@@ -282,14 +324,16 @@ public class GameBoard extends JPanel {
                 g.fillRect(wx, wy, cellSize, cellSize);
             }
         } 
-   
+      }
 
-        // O jogador é a bolinha vermelha
+
+        // O jogador é a bolinha rosa
         g.setColor(new Color(255,20,147));  // rosa
         int playerX = playerCol * cellSize;
         int playerY = playerRow * cellSize;
         g.fillOval(playerX, playerY, cellSize, cellSize);
-             
+        updatePitSmell(); 
+        
     }
 }
     public int getCols() {
@@ -310,7 +354,7 @@ public class GameBoard extends JPanel {
     
     public boolean isNextMoveSafe(int row, int col) {
         if (row < 0 || row >= rows || col < 0 || col >= cols) {
-            // Fora do tabuleiro
+            // fora do tabuleiro
             return false;
         }
 
@@ -319,7 +363,7 @@ public class GameBoard extends JPanel {
     }
     
     public boolean pitAt(int row, int col) {
-        // Verifica se tem pit
+        // ve se tem pit
         return pits.stream().anyMatch(pit -> pit.getRow() == row && pit.getCol() == col);
     }
     
@@ -331,10 +375,8 @@ public class GameBoard extends JPanel {
             wumpus1Smell.clear();
             wumpus2Smell.clear();
 
-            // Adicione os quadrados verdes ao redor do Wumpus1
             wumpus1Smell.addAll(getNeighborSquares(wumpus1Row, wumpus1Col));
 
-            // Adicione os quadrados verdes ao redor do Wumpus2
             wumpus2Smell.addAll(getNeighborSquares(wumpus2Row, wumpus2Col));
         }
     
@@ -358,5 +400,27 @@ public class GameBoard extends JPanel {
         }
         return false;
     }
+    
+    public void updatePitSmell() {
+        pitSmell.clear();
+        for (int row = 0; row < rows; row++) {
+            for (int col = 0; col < cols; col++) {
+                if (pitAt(row, col)) {
+                    if (Math.abs(playerRow - row) + Math.abs(playerCol - col) == 1) {
+                        pitSmell.addAll(getNeighborSquares(row, col));
+                    }
+                }
+            }
+        }
+    }
+
+    public void clearGameElements() {
+        for (int row = 0; row < gameMap.length; row++) {
+            for (int col = 0; col < gameMap[row].length; col++) {
+                gameMap[row][col].setObject(null); 
+            }
+        }
+    }
+    
 }
    

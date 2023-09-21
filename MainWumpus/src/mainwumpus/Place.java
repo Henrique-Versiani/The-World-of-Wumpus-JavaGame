@@ -102,4 +102,13 @@ public class Place {
     public void setObject(Object object) {
         this.object = object;
     }
+    
+    public Wumpus1 getObjectAsWumpus1() {
+        if (object instanceof Wumpus1) {
+            return (Wumpus1) object;
+        } else {
+            return null;
+        }
+    }
+
 }

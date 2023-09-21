@@ -62,5 +62,6 @@ class Wumpus1 {
     public int getColumn(){
         return column;
     }
+    
 
 }

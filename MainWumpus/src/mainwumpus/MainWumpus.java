@@ -6,35 +6,41 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
 public class MainWumpus extends JFrame {
-    private Place[][] gameMap;
+    private final Place[][] gameMap;
     private GameBoard gameBoard;
     private int playerRow;
     private int playerCol;
     private Wumpus1 wumpus1;
     private Wumpus2 wumpus2;
     private Player player;
-    private InfoPanel infoPanel;
     private Gold gold;
     private Arrow arrow;
     private Wood wood;
     private int energy = 100;
     private boolean hasGold = false;
     private boolean hasWood = false;
-    private int totalLantern = 2;
+    private int totalLantern = 100;
     private int arrows=0;
-    private boolean wumpusOneAlive = true;
-    private boolean wumpusTwoAlive = true;
+    private int totalWood = 0;
+    private int totalGold = 0;
+    private boolean wumpusOneAlive;
+    private boolean wumpusTwoAlive;
+    private JLabel infoLabel;
     
     
     public MainWumpus(Place[][] gameMap) {
         this.gameMap = gameMap;
         setTitle("Wumpus Game");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        setSize(1360,720 );
+        setExtendedState(JFrame.MAXIMIZED_BOTH);
         setLocationRelativeTo(null);
         playerRow = 14;
         playerCol = 0;
         player = new Player();
+        
+        
+        wumpusOneAlive = true;
+        wumpusTwoAlive = true;
         
         gameBoard = new GameBoard(15, 15, gameMap);
         add(gameBoard, BorderLayout.CENTER);
@@ -45,10 +51,16 @@ public class MainWumpus extends JFrame {
         Gold gold = new Gold();
         Wood wood = new Wood(0,0,0);
         Arrow arrow = new Arrow();
+        
+        infoLabel = new JLabel("Life Energy: " + energy + "\n Backpack: \nWood: " + totalWood + "\n Gold: " + totalGold + "Arrow(s): " + arrows + "Lamp Energy: " + totalLantern);
+        infoLabel.setFont(new Font("Arial", Font.PLAIN, 16));
+        infoLabel.setHorizontalAlignment(JLabel.CENTER);
+        add(infoLabel, BorderLayout.WEST);
 
-        infoPanel = new InfoPanel(player, gold, wood, arrow);
-        add(infoPanel, BorderLayout.WEST);
-        setVisible(true);
+
+        infoLabel.setText("<html>Caption <br>Life Energy: " + energy + "</font><br>Backpack: </font><br><font color='#8B4513'>Wood: " + totalWood + "</font><br><font color='#FFD700'>Gold: " + totalGold + "</font><br>Arrow(s): " + arrows + "</font><br>Lamp Energy: " + totalLantern + "</font><br><font color='#DC143C'>Wumpus 1</font><br><font color='#3CB357'>Wumpus 2</font><br><font color='#FF1493'>Player</font><br><font color='black'>Pit</font><br><font color='blue'>Breeze</font><br><font color='#008000'>Smell</font></html>");
+
+        repaint();
         
         
         JPanel eastPanel = new JPanel();
@@ -58,10 +70,14 @@ public class MainWumpus extends JFrame {
         JButton clearBackpackButton = new JButton("Clear Backpack");
         JButton debugMapButton = new JButton("Debug Map");
         JButton hideMapButton = new JButton("Hide All Map");
-        JButton useLanternY = new JButton("Use the lantern Y");
-        JButton useLanternX = new JButton("Use the lantern X");
+        JButton useLanternDown = new JButton("Use the lamp Down");
+        JButton useLanternRight = new JButton("Use the lamp Right");
+        JButton useLanternUp = new JButton("Use the lamp Up");
+        JButton useLanternLeft = new JButton("Use the lamp Left");;
         JButton shootGreenButton = new JButton("Shoot a Green Wumpus");
         JButton shootRedButton = new JButton("Shoot a Red Wumpus");
+        JButton restartButton = new JButton("Restart");
+        JButton exitButton = new JButton("Exit Game");
         
 
         eastPanel.setLayout(new BoxLayout(eastPanel, BoxLayout.Y_AXIS));
@@ -69,10 +85,15 @@ public class MainWumpus extends JFrame {
         eastPanel.add(clearBackpackButton);
         eastPanel.add(debugMapButton);
         eastPanel.add(hideMapButton);
-        eastPanel.add(useLanternY);
-        eastPanel.add(useLanternX);
+        eastPanel.add(useLanternUp);
+        eastPanel.add(useLanternDown);
+        eastPanel.add(useLanternRight);
+        eastPanel.add(useLanternLeft);
         eastPanel.add(shootGreenButton);
         eastPanel.add(shootRedButton);
+        eastPanel.add(restartButton);
+        eastPanel.add(exitButton);
+        
         
         JPanel buttonPanel = new JPanel();
         add(buttonPanel, BorderLayout.SOUTH);
@@ -92,7 +113,30 @@ public class MainWumpus extends JFrame {
         wood = new Wood(2,0,0);
         arrow = new Arrow();
         
-        infoPanel = new InfoPanel(player, gold, wood, arrow);
+        
+        restartButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                restartGame();
+            }
+        });
+        
+        exitButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                int choice = JOptionPane.showConfirmDialog(
+                        MainWumpus.this,
+                        "Do you really want to quit the game?",
+                        "Confirm Quit",
+                        JOptionPane.YES_NO_OPTION
+                );
+
+                if (choice == JOptionPane.YES_OPTION) {
+                    System.exit(0);
+                }
+            }
+        });
+
         
         
         shootRedButton.addActionListener(new ActionListener() {
@@ -102,6 +146,11 @@ public class MainWumpus extends JFrame {
                     if (isPlayerAdjacentToWumpus1()) {
                         removeWumpus1();
                         arrows--;
+                        player.clearBackpack();
+                        wumpusOneAlive = false;
+                        infoLabel.setText("<html>Caption <br>Life Energy: " + energy + "</font><br>Backpack: </font><br><font color='#8B4513'>Wood: " + totalWood + "</font><br><font color='#FFD700'>Gold: " + totalGold + "</font><br>Arrow(s): " + arrows + "</font><br>Lamp Energy: " + totalLantern + "</font><br><font color='#DC143C'>Wumpus 1</font><br><font color='#3CB357'>Wumpus 2</font><br><font color='#FF1493'>Player</font><br><font color='black'>Pit</font><br><font color='blue'>Breeze</font><br><font color='#008000'>Smell</font></html>");
+
+                        repaint(); 
                         killedMessage();
                     } 
                 } else{
@@ -117,7 +166,15 @@ public class MainWumpus extends JFrame {
                     if (isPlayerAdjacentToWumpus2()) {
                         removeWumpus2();
                         arrows--;
+                        player.clearBackpack();
+                        
+                        wumpusTwoAlive = false;
+                        infoLabel.setText("<html>Caption <br>Life Energy: " + energy + "</font><br>Backpack: </font><br><font color='#8B4513'>Wood: " + totalWood + "</font><br><font color='#FFD700'>Gold: " + totalGold + "</font><br>Arrow(s): " + arrows + "</font><br>Lamp Energy: " + totalLantern + "</font><br><font color='#DC143C'>Wumpus 1</font><br><font color='#3CB357'>Wumpus 2</font><br><font color='#FF1493'>Player</font><br><font color='black'>Pit</font><br><font color='blue'>Breeze</font><br><font color='#008000'>Smell</font></html>");
+
+                        repaint();
                         killedMessage();
+                         
+                        
                     } 
                 } else{
                     emptyArrow();
@@ -141,13 +198,16 @@ public class MainWumpus extends JFrame {
             }
         });
         
-        useLanternY.addActionListener(new ActionListener() {
+        useLanternDown.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 if(totalLantern != 0){
-                    gameBoard.LanternY(playerRow, playerCol);
+                    gameBoard.LanternDown(playerRow, playerCol);
                     gameBoard.repaint();
-                    totalLantern--;
+                    totalLantern -= 50;
+                    infoLabel.setText("<html>Caption <br>Life Energy: " + energy + "</font><br>Backpack: </font><br><font color='#8B4513'>Wood: " + totalWood + "</font><br><font color='#FFD700'>Gold: " + totalGold + "</font><br>Arrow(s): " + arrows + "</font><br>Lamp Energy: " + totalLantern + "</font><br><font color='#DC143C'>Wumpus 1</font><br><font color='#3CB357'>Wumpus 2</font><br><font color='#FF1493'>Player</font><br><font color='black'>Pit</font><br><font color='blue'>Breeze</font><br><font color='#008000'>Smell</font></html>");
+
+                    repaint();
                 } else{
                     emptyLantern();
                 }
@@ -155,29 +215,72 @@ public class MainWumpus extends JFrame {
             }
         });
         
-        useLanternX.addActionListener(new ActionListener() {
+        useLanternRight.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 if(totalLantern != 0){
-                    gameBoard.LanternX(playerRow, playerCol);
+                    gameBoard.LanternRight(playerRow, playerCol);
                     gameBoard.repaint();
-                    totalLantern--;
+                    totalLantern -= 50;
+                    infoLabel.setText("<html>Caption <br>Life Energy: " + energy + "</font><br>Backpack: </font><br><font color='#8B4513'>Wood: " + totalWood + "</font><br><font color='#FFD700'>Gold: " + totalGold + "</font><br>Arrow(s): " + arrows + "</font><br>Lamp Energy: " + totalLantern + "</font><br><font color='#DC143C'>Wumpus 1</font><br><font color='#3CB357'>Wumpus 2</font><br><font color='#FF1493'>Player</font><br><font color='black'>Pit</font><br><font color='blue'>Breeze</font><br><font color='#008000'>Smell</font></html>");
+
+                    repaint();
                 } else{
                     emptyLantern();
                 }
             }
         });
         
+        useLanternUp.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                if(totalLantern != 0){
+                    gameBoard.LanternUp(playerRow, playerCol);
+                    gameBoard.repaint();
+                    totalLantern -= 50;
+                    infoLabel.setText("<html>Caption <br>Life Energy: " + energy + "</font><br>Backpack: </font><br><font color='#8B4513'>Wood: " + totalWood + "</font><br><font color='#FFD700'>Gold: " + totalGold + "</font><br>Arrow(s): " + arrows + "</font><br>Lamp Energy: " + totalLantern + "</font><br><font color='#DC143C'>Wumpus 1</font><br><font color='#3CB357'>Wumpus 2</font><br><font color='#FF1493'>Player</font><br><font color='black'>Pit</font><br><font color='blue'>Breeze</font><br><font color='#008000'>Smell</font></html>");
+
+                    repaint();
+                } else{
+                    emptyLantern();
+                }
+                    
+            }
+        });
+        
+        useLanternLeft.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                if(totalLantern != 0){
+                    gameBoard.LanternLeft(playerRow, playerCol);
+                    gameBoard.repaint();
+                    totalLantern -= 50;
+                    infoLabel.setText("<html>Caption <br>Life Energy: " + energy + "</font><br>Backpack: </font><br><font color='#8B4513'>Wood: " + totalWood + "</font><br><font color='#FFD700'>Gold: " + totalGold + "</font><br>Arrow(s): " + arrows + "</font><br>Lamp Energy: " + totalLantern + "</font><br><font color='#DC143C'>Wumpus 1</font><br><font color='#3CB357'>Wumpus 2</font><br><font color='#FF1493'>Player</font><br><font color='black'>Pit</font><br><font color='blue'>Breeze</font><br><font color='#008000'>Smell</font></html>");
+
+                    repaint();
+                } else{
+                    emptyLantern();
+                }
+                    
+            }
+        });
+
+        
         craftArrowButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 if (!hasWood) {
                     notCraftMessage();
-                } else { // 
+                } else { 
                     player.createArrow();
                     craftMessage();
                     arrows++;
-                    infoPanel.update(); 
+                    hasWood = false;
+                    totalWood--;
+                    
+                    infoLabel.setText("<html>Caption <br>Life Energy: " + energy + "</font><br>Backpack: </font><br><font color='#8B4513'>Wood: " + totalWood + "</font><br><font color='#FFD700'>Gold: " + totalGold + "</font><br>Arrow(s): " + arrows + "</font><br>Lamp Energy: " + totalLantern + "</font><br><font color='#DC143C'>Wumpus 1</font><br><font color='#3CB357'>Wumpus 2</font><br><font color='#FF1493'>Player</font><br><font color='black'>Pit</font><br><font color='blue'>Breeze</font><br><font color='#008000'>Smell</font></html>");
+
+                    repaint();
                 }
             }
         });
@@ -188,7 +291,12 @@ public class MainWumpus extends JFrame {
                 if (player.isBackpackFull()) {
                     clearBackpackMessage();
                     player.clearBackpack();
-                    infoPanel.update(); 
+                    
+                    totalGold = 0;
+                    arrows=0;
+                    infoLabel.setText("<html>Caption <br>Life Energy: " + energy + "</font><br>Backpack: </font><br><font color='#8B4513'>Wood: " + totalWood + "</font><br><font color='#FFD700'>Gold: " + totalGold + "</font><br>Arrow(s): " + arrows + "</font><br>Lamp Energy: " + totalLantern + "</font><br><font color='#DC143C'>Wumpus 1</font><br><font color='#3CB357'>Wumpus 2</font><br><font color='#FF1493'>Player</font><br><font color='black'>Pit</font><br><font color='blue'>Breeze</font><br><font color='#008000'>Smell</font></html>");
+
+                    repaint();
                 } else {
                     notClearBackpackMessage();
                 }
@@ -276,6 +384,7 @@ public class MainWumpus extends JFrame {
         if (playerRow > 0) {
             playerRow--;
             gameBoard.setPlayerPosition(playerRow, playerCol);
+            gameBoard.updatePitSmell();
         }
     }
     
@@ -284,6 +393,7 @@ public class MainWumpus extends JFrame {
         if (playerRow < gameMap.length - 1) {
             playerRow++;
             gameBoard.setPlayerPosition(playerRow, playerCol);
+            gameBoard.updatePitSmell();
         }
     }
 
@@ -291,6 +401,7 @@ public class MainWumpus extends JFrame {
         if (playerCol > 0) {
             playerCol--;
             gameBoard.setPlayerPosition(playerRow, playerCol);
+            gameBoard.updatePitSmell();
         }
     }
 
@@ -298,33 +409,52 @@ public class MainWumpus extends JFrame {
         if (playerCol < gameMap[0].length - 1) {
             playerCol++;
             gameBoard.setPlayerPosition(playerRow, playerCol);
+            gameBoard.updatePitSmell();
         }
     }
     
     private void gameOver() {
-        System.exit(0);
+        int choice = JOptionPane.showConfirmDialog(
+                this,
+                "Do you want to restart the game?",
+                "Game Over",
+                JOptionPane.YES_NO_OPTION
+        );
+
+        if (choice == JOptionPane.YES_OPTION) {
+            restartGame(); 
+        } else {
+            exitMessage(); 
+            System.exit(0);
+        }
     }
+
     
     private boolean pitAt(int row, int col) {
         return gameBoard.pitAt(row, col);
     }
     
     private void checkPlayerStatus() {
-        if ((wumpusTwoAlive) ||(wumpusOneAlive))  {
+        if (wumpusOneAlive == true)  {
             if (wumpus1.getRow() == playerRow && wumpus1.getColumn() == playerCol) {
                 JOptionPane.showMessageDialog(this, "Game Over! Player was killed by a Wumpus");
                 gameOver();
-            } else if (wumpus2.getRow() == playerRow && wumpus2.getColumn() == playerCol) {
+            }
+        } if(wumpusTwoAlive == true){
+             if (wumpus2.getRow() == playerRow && wumpus2.getColumn() == playerCol) {
                 energy -= 50;
+                infoLabel.setText("<html>Caption <br>Life Energy: " + energy + "</font><br>Backpack: </font><br><font color='#8B4513'>Wood: " + totalWood + "</font><br><font color='#FFD700'>Gold: " + totalGold + "</font><br>Arrow(s): " + arrows + "</font><br>Lamp Energy: " + totalLantern + "</font><br><font color='#DC143C'>Wumpus 1</font><br><font color='#3CB357'>Wumpus 2</font><br><font color='#FF1493'>Player</font><br><font color='black'>Pit</font><br><font color='blue'>Breeze</font><br><font color='#008000'>Smell</font></html>");
+
+                repaint();
                 player.setEnergy(energy);
-                infoPanel.update();
+
                 if (energy == 0) {
                     JOptionPane.showMessageDialog(this, "Game Over! Player lost all energy");
                     gameOver();
                 }
             }
         }
-        if (pitAt(playerRow, playerCol)) { // Verifica se jogador caiu num buraco
+        if (pitAt(playerRow, playerCol)) {
             JOptionPane.showMessageDialog(this, "Game Over! Player fell into a hole");
             gameOver();
         } else if (playerRow == 14 && playerCol == 0 && hasGold == true) {
@@ -340,7 +470,11 @@ public class MainWumpus extends JFrame {
                     player.collectGold();
                     hasGold = true;
                     gameMap[playerRow][playerCol].setObject(null);
-                    infoPanel.update(); 
+                    
+                    repaint(); 
+                    totalGold++;
+                    infoLabel.setText("<html>Caption <br>Life Energy: " + energy + "</font><br>Backpack: </font><br><font color='#8B4513'>Wood: " + totalWood + "</font><br><font color='#FFD700'>Gold: " + totalGold + "</font><br>Arrow(s): " + arrows + "</font><br>Lamp Energy: " + totalLantern + "</font><br><font color='#DC143C'>Wumpus 1</font><br><font color='#3CB357'>Wumpus 2</font><br><font color='#FF1493'>Player</font><br><font color='black'>Pit</font><br><font color='blue'>Breeze</font><br><font color='#008000'>Smell</font></html>");
+
                     repaint(); 
                     
                 
@@ -353,9 +487,12 @@ public class MainWumpus extends JFrame {
             player.addToBackpack(wood);
             player.collectWood();
             gameMap[playerRow][playerCol].setObject(null);
-            infoPanel.update(); // Atualiza o painel de informações
-            repaint(); // Redesenha o tabuleiro para refletir a mudança
+            repaint();
             hasWood = true;
+            totalWood++;
+            infoLabel.setText("<html>Caption <br>Life Energy: " + energy + "</font><br>Backpack: </font><br><font color='#8B4513'>Wood: " + totalWood + "</font><br><font color='#FFD700'>Gold: " + totalGold + "</font><br>Arrow(s): " + arrows + "</font><br>Lamp Energy: " + totalLantern + "</font><br><font color='#DC143C'>Wumpus 1</font><br><font color='#3CB357'>Wumpus 2</font><br><font color='#FF1493'>Player</font><br><font color='black'>Pit</font><br><font color='blue'>Breeze</font><br><font color='#008000'>Smell</font></html>");
+
+            repaint(); 
             
         }
     }
@@ -376,6 +513,10 @@ public class MainWumpus extends JFrame {
         JOptionPane.showMessageDialog(this, "Your backpack is already empty.");
     }
     
+    private void exitMessage(){
+        JOptionPane.showMessageDialog(this, "Exiting Wumpus Game...");
+    }
+    
     private void emptyLantern(){
         JOptionPane.showMessageDialog(this, "Your lantern has no battery.");
     }
@@ -385,7 +526,13 @@ public class MainWumpus extends JFrame {
     }
     
     private void killedMessage(){
-        JOptionPane.showMessageDialog(this, "You killed a Wumpus;");
+        if(gameBoard.isAliveW1 == true){
+            JOptionPane.showMessageDialog(this, "You killed a Wumpus.");
+        } else if(gameBoard.isAliveW1 == true){
+            JOptionPane.showMessageDialog(this, "You killed a Wumpus.");
+        } else{
+            JOptionPane.showMessageDialog(this, "All Wumpus are dead.");
+        }
     }
     
     private boolean isPlayerAdjacentToWumpus1() {
@@ -394,25 +541,40 @@ public class MainWumpus extends JFrame {
     private boolean isPlayerAdjacentToWumpus2() {
         return true;
     }
-
-
+    
     private void removeWumpus1() {
-        wumpusOneAlive = false;
-        gameBoard.repaint();
+            wumpusTwoAlive = false;
+            gameBoard.isAliveW1 = false;
+            repaint();
+            gameBoard.repaint();
     }
+
     
     private void removeWumpus2() {
         wumpusTwoAlive = false;
+        gameBoard.isAliveW2 = false;
+        repaint();
         gameBoard.repaint();
     }
+    
 
-
+    private void restartGame() {
+        dispose(); 
+        SwingUtilities.invokeLater(() -> {
+            Place[][] gameMap = new Place[15][15];
+            new MainWumpus(gameMap); 
+        });
+    }
 
 
 
 
 
     public static void main(String[] args) {
+        WelcomeScreen welcomeScreen = new WelcomeScreen();
+        
+        welcomeScreen.waitForClose();
+        
         SwingUtilities.invokeLater(() -> {
             Place[][] gameMap = new Place[15][15];
             new MainWumpus(gameMap);

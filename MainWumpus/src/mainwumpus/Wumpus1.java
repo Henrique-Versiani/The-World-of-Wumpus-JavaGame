@@ -43,7 +43,6 @@ class Wumpus1 {
             if (nextRow >= 0 && nextRow < mapRows && nextCol >= 0 && nextCol < mapColumns) {    //se ta dentro do mapa
                 Place nextPlace = gameMap[nextRow][nextCol];
                 if (nextPlace == null || !(nextPlace.getObject() instanceof Pit)) { //se nao eh buraco
-                    
                     row = nextRow;
                     column = nextCol;
                     break;
@@ -52,6 +51,7 @@ class Wumpus1 {
         } while (true);
 
         gameBoard.setWumpus1Position(row, column);
+        gameBoard.updateWumpusSmell();
         gameBoard.repaint();
     }
 

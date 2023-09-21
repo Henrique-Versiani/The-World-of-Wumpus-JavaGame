@@ -13,6 +13,7 @@ import javax.swing.JPanel;
         private Gold gold;
         private Wood wood;
         private Arrow arrow;
+        private GameBoard gameBoard;
 
         public InfoPanel(Player player, Gold gold, Wood wood, Arrow arrow) {
             this.player = player;
@@ -24,15 +25,17 @@ import javax.swing.JPanel;
             energyValueLabel = new JLabel("Energy: " + playerEnergy);
             int totalArrow = arrow.getArrow();
             arrowValueLabel = new JLabel("Arrow(s): " + totalArrow);
-            int totalWood = wood.getWood();
+            int totalWood = player.getWood();
             woodValueLabel = new JLabel("Wood: " + totalWood);
-            int totalGold = gold.getGold();
+            int totalGold = player.getGold();
             goldValueLabel = new JLabel("Gold: " + totalGold);
 
             add(energyValueLabel);
             add(arrowValueLabel);
             add(woodValueLabel);
             add(goldValueLabel);
+            
+            
             
             
         }

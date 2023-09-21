@@ -87,6 +87,7 @@ public class Wumpus2 {
         } while (true);
 
         gameBoard.setWumpus2Position(row, column);
+        gameBoard.updateWumpusSmell();
         gameBoard.repaint();
     }
     

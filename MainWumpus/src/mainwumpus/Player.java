@@ -14,6 +14,8 @@ public class Player {
     private List<Object> backpack;
     private int backpackCapacity;
     private boolean hasGold = false;
+    private int totalGold;
+    private int totalWood;
 
     public Player() {
            
@@ -80,6 +82,22 @@ public class Player {
     
     public void clearBackpack() {
         backpack.clear();
+    }
+    
+    public void collectWood() {
+        totalWood++;
+    }
+    
+    public int getWood(){
+        return totalWood;
+    }
+    
+    public void collectGold() {
+        totalGold++;
+    }
+    
+    public int getGold(){
+        return totalGold;
     }
     
 }

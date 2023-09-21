@@ -4,8 +4,6 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.Point;
-import java.util.ArrayList;
 
 public class MainWumpus extends JFrame {
     private Place[][] gameMap;
@@ -22,7 +20,12 @@ public class MainWumpus extends JFrame {
     private int energy = 100;
     private boolean hasGold = false;
     private boolean hasWood = false;
-
+    private int totalLantern = 2;
+    private int arrows=0;
+    private boolean wumpusOneAlive = true;
+    private boolean wumpusTwoAlive = true;
+    
+    
     public MainWumpus(Place[][] gameMap) {
         this.gameMap = gameMap;
         setTitle("Wumpus Game");
@@ -32,7 +35,6 @@ public class MainWumpus extends JFrame {
         playerRow = 14;
         playerCol = 0;
         player = new Player();
-       
         
         gameBoard = new GameBoard(15, 15, gameMap);
         add(gameBoard, BorderLayout.CENTER);
@@ -49,16 +51,28 @@ public class MainWumpus extends JFrame {
         setVisible(true);
         
         
-        JPanel craftButtonPanel = new JPanel();
-        add(craftButtonPanel, BorderLayout.EAST);
+        JPanel eastPanel = new JPanel();
+        add(eastPanel, BorderLayout.EAST);
 
         JButton craftArrowButton = new JButton("Craft Arrow");
         JButton clearBackpackButton = new JButton("Clear Backpack");
+        JButton debugMapButton = new JButton("Debug Map");
+        JButton hideMapButton = new JButton("Hide All Map");
+        JButton useLanternY = new JButton("Use the lantern Y");
+        JButton useLanternX = new JButton("Use the lantern X");
+        JButton shootGreenButton = new JButton("Shoot a Green Wumpus");
+        JButton shootRedButton = new JButton("Shoot a Red Wumpus");
+        
 
-        craftButtonPanel.setLayout(new BoxLayout(craftButtonPanel, BoxLayout.Y_AXIS));
-        craftButtonPanel.add(craftArrowButton);
-        craftButtonPanel.add(clearBackpackButton);
-
+        eastPanel.setLayout(new BoxLayout(eastPanel, BoxLayout.Y_AXIS));
+        eastPanel.add(craftArrowButton);
+        eastPanel.add(clearBackpackButton);
+        eastPanel.add(debugMapButton);
+        eastPanel.add(hideMapButton);
+        eastPanel.add(useLanternY);
+        eastPanel.add(useLanternX);
+        eastPanel.add(shootGreenButton);
+        eastPanel.add(shootRedButton);
         
         JPanel buttonPanel = new JPanel();
         add(buttonPanel, BorderLayout.SOUTH);
@@ -80,31 +94,106 @@ public class MainWumpus extends JFrame {
         
         infoPanel = new InfoPanel(player, gold, wood, arrow);
         
-        craftArrowButton.addActionListener(new ActionListener() {
-        @Override
-        public void actionPerformed(ActionEvent e) {
-            if (!hasWood) {
-                notCraftMessage();
-            } else { // 
-                player.createArrow();
-                craftMessage();
-                infoPanel.update(); 
+        
+        shootRedButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {        
+                if(arrows > 0){
+                    if (isPlayerAdjacentToWumpus1()) {
+                        removeWumpus1();
+                        arrows--;
+                        killedMessage();
+                    } 
+                } else{
+                    emptyArrow();
+                }
             }
-        }
-    });
+        });
+        
+        shootGreenButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {        
+                if(arrows > 0){
+                    if (isPlayerAdjacentToWumpus2()) {
+                        removeWumpus2();
+                        arrows--;
+                        killedMessage();
+                    } 
+                } else{
+                    emptyArrow();
+                }
+            }
+        });
+        
+        debugMapButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                gameBoard.debugMap();
+                gameBoard.repaint();
+            }
+        });
+        
+        hideMapButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                gameBoard.hideMap();
+                gameBoard.repaint();
+            }
+        });
+        
+        useLanternY.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                if(totalLantern != 0){
+                    gameBoard.LanternY(playerRow, playerCol);
+                    gameBoard.repaint();
+                    totalLantern--;
+                } else{
+                    emptyLantern();
+                }
+                    
+            }
+        });
+        
+        useLanternX.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                if(totalLantern != 0){
+                    gameBoard.LanternX(playerRow, playerCol);
+                    gameBoard.repaint();
+                    totalLantern--;
+                } else{
+                    emptyLantern();
+                }
+            }
+        });
+        
+        craftArrowButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                if (!hasWood) {
+                    notCraftMessage();
+                } else { // 
+                    player.createArrow();
+                    craftMessage();
+                    arrows++;
+                    infoPanel.update(); 
+                }
+            }
+        });
         
         clearBackpackButton.addActionListener(new ActionListener() {
-        @Override
-        public void actionPerformed(ActionEvent e) {
-            if (player.isBackpackFull()) {
-                clearBackpackMessage();
-                player.clearBackpack();
-                infoPanel.update(); 
-            } else {
-                notClearBackpackMessage();
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                if (player.isBackpackFull()) {
+                    clearBackpackMessage();
+                    player.clearBackpack();
+                    infoPanel.update(); 
+                } else {
+                    notClearBackpackMessage();
+                }
             }
-        }
-    });
+        });
         
 
         moveUpButton.addActionListener(new ActionListener() {
@@ -221,18 +310,21 @@ public class MainWumpus extends JFrame {
     }
     
     private void checkPlayerStatus() {
-        if (wumpus1.getRow() == playerRow && wumpus1.getColumn() == playerCol) {
-            JOptionPane.showMessageDialog(this, "Game Over! Player was killed by a Wumpus");
-            gameOver();
-        } else if (wumpus2.getRow() == playerRow && wumpus2.getColumn() == playerCol) {
-            energy -= 50;
-            player.setEnergy(energy);
-            infoPanel.update();
-            if (energy == 0) {
-                JOptionPane.showMessageDialog(this, "Game Over! Player lost all energy");
+        if ((wumpusTwoAlive) ||(wumpusOneAlive))  {
+            if (wumpus1.getRow() == playerRow && wumpus1.getColumn() == playerCol) {
+                JOptionPane.showMessageDialog(this, "Game Over! Player was killed by a Wumpus");
                 gameOver();
+            } else if (wumpus2.getRow() == playerRow && wumpus2.getColumn() == playerCol) {
+                energy -= 50;
+                player.setEnergy(energy);
+                infoPanel.update();
+                if (energy == 0) {
+                    JOptionPane.showMessageDialog(this, "Game Over! Player lost all energy");
+                    gameOver();
+                }
             }
-        } else if (pitAt(playerRow, playerCol)) { // Verifica se jogador caiu num buraco
+        }
+        if (pitAt(playerRow, playerCol)) { // Verifica se jogador caiu num buraco
             JOptionPane.showMessageDialog(this, "Game Over! Player fell into a hole");
             gameOver();
         } else if (playerRow == 14 && playerCol == 0 && hasGold == true) {
@@ -245,10 +337,12 @@ public class MainWumpus extends JFrame {
         if (playerRow == gameBoard.getGoldRows() && playerCol == gameBoard.getGoldCols()) {
             if (!player.isBackpackFull() && !hasGold) {
                     player.addToBackpack(gold); 
+                    player.collectGold();
                     hasGold = true;
                     gameMap[playerRow][playerCol].setObject(null);
                     infoPanel.update(); 
                     repaint(); 
+                    
                 
                 }
             }
@@ -257,10 +351,12 @@ public class MainWumpus extends JFrame {
     private void pickUpWood() {
         if (!player.isBackpackFull()) {
             player.addToBackpack(wood);
+            player.collectWood();
             gameMap[playerRow][playerCol].setObject(null);
             infoPanel.update(); // Atualiza o painel de informações
             repaint(); // Redesenha o tabuleiro para refletir a mudança
             hasWood = true;
+            
         }
     }
     
@@ -279,6 +375,38 @@ public class MainWumpus extends JFrame {
     private void notClearBackpackMessage(){
         JOptionPane.showMessageDialog(this, "Your backpack is already empty.");
     }
+    
+    private void emptyLantern(){
+        JOptionPane.showMessageDialog(this, "Your lantern has no battery.");
+    }
+    
+    private void emptyArrow(){
+        JOptionPane.showMessageDialog(this, "You don't have arrows.");
+    }
+    
+    private void killedMessage(){
+        JOptionPane.showMessageDialog(this, "You killed a Wumpus;");
+    }
+    
+    private boolean isPlayerAdjacentToWumpus1() {
+        return true;
+    }
+    private boolean isPlayerAdjacentToWumpus2() {
+        return true;
+    }
+
+
+    private void removeWumpus1() {
+        wumpusOneAlive = false;
+        gameBoard.repaint();
+    }
+    
+    private void removeWumpus2() {
+        wumpusTwoAlive = false;
+        gameBoard.repaint();
+    }
+
+
 
 
 
